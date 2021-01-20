@@ -85,7 +85,7 @@ namespace Graceterm
         private static volatile int requestCount = 0;
         private readonly GracetermOptions options;
 
-        private Func<HttpContext, Task> postSigtermRequestsHandler = async (httpContext) => 
+        private readonly Func<HttpContext, Task> postSigtermRequestsHandler = async (httpContext) =>
         {
             httpContext.Response.StatusCode = 503;
             await httpContext.Response.WriteAsync("503 - Service unavailable.");
@@ -108,7 +108,8 @@ namespace Graceterm
 
         #endregion
 
-        public GracetermMiddleware(RequestDelegate next, IApplicationLifetime applicationLifetime, ILoggerFactory loggerFactory, IOptions<GracetermOptions> options)
+        public GracetermMiddleware(RequestDelegate next, IApplicationLifetime applicationLifetime,
+            ILoggerFactory loggerFactory, IOptions<GracetermOptions> options)
         {
             this.next = next ?? throw new ArgumentNullException(nameof(next));
             logger = loggerFactory?.CreateLogger(LoggerCategory) ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -205,21 +206,11 @@ namespace Graceterm
             }
             else
             {
-                //lock (lockPad)
-                //{
-                //    requestCount++;
-                //}
-
                 Interlocked.Increment(ref requestCount);
 
                 await next.Invoke(httpContext);
 
                 Interlocked.Decrement(ref requestCount);
-
-                //lock (lockPad)
-                //{
-                //    --;
-                //}
             }
         }
 
@@ -243,5 +234,4 @@ namespace Graceterm
             await postSigtermRequestsHandler.Invoke(httpContext);
         }
     }
-
 }
