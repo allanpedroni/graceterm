@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Graceterm
 {
@@ -52,12 +51,5 @@ namespace Graceterm
         {
             CustomPostSigtermRequestsHandler = customPosSigtermRequestsHandler;
         }
-
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //[Obsolete("The method name is misspelled, use UseCustomPostSigtermIncommingRequestsHandler")]
-        //public void UseCustomPosSigtermIncommingRequestsHandler(Func<HttpContext, Task> customPosSigtermRequestsHandler)
-        //{
-        //    UseCustomPostSigtermIncommingRequestsHandler(customPosSigtermRequestsHandler);
-        //}
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 
 namespace Graceterm.Tests
 {
@@ -15,7 +16,7 @@ namespace Graceterm.Tests
     {
         public const string ResponseContent = "hello";
         private TestServer _testServer;
-        private IApplicationLifetime _applicationLifetime;
+        private IHostApplicationLifetime _applicationLifetime;
 
         public Task<HttpResponseMessage> CreateRequest()
         {
@@ -55,7 +56,7 @@ namespace Graceterm.Tests
 
         protected Server(GracetermOptions gracetermOptions)
         {
-            GracetermMiddleware.DisableTerminationFallback = true;
+            LifetimeGracetermService.DisableTerminationFallback = true;
 
             var webHostBuilder = new WebHostBuilder()
                 .ConfigureLogging(loggingBuilder =>
@@ -63,8 +64,12 @@ namespace Graceterm.Tests
                     loggingBuilder.AddDebug();
                     loggingBuilder.SetMinimumLevel(LogLevel.Trace);
                 })
+                .ConfigureServices(s =>
+                {
+                    s.AddGraceterm();
+                })
                 .Configure(app => {
-                    _applicationLifetime = app.ApplicationServices.GetService<IApplicationLifetime>();
+                    _applicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
 
                     if(_applicationLifetime == null)
                     {

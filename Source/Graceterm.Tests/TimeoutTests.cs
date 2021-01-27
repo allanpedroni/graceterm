@@ -30,8 +30,8 @@ namespace Graceterm.Tests
 
             await Task.Delay(8000);
 
-            Assert.True(GracetermMiddleware.TimeoutOccurredWithPenddingRequests);
-            Assert.True(GracetermMiddleware.RequestCount >= 10, 
+            Assert.True(LifetimeGracetermService.TimeoutOccurredWithPenddingRequests);
+            Assert.True(LifetimeGracetermService.RequestCount >= 10, 
                 $"GracetermMiddleware.RequestCount < {requests}");
             
             await stopTask;
