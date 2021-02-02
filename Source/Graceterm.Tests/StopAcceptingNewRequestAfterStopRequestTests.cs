@@ -9,7 +9,7 @@ namespace Graceterm.Tests
         [Fact]
         public async Task ShouldReturnServiceUnavailableForResquestCreatedAfterStopRequest()
         {
-            var server = Server.Create(new GracetermOptions() { TimeoutSeconds = 5 });
+            var server = Server.Create();
             server.CreateRequests(1); // Create a request before ask to terminate in order to hold server up
 
             await Task.Delay(1000); // Ensure that requests will be all submitted

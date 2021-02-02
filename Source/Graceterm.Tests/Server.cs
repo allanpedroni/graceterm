@@ -82,7 +82,7 @@ namespace Graceterm.Tests
                         await context.Response.WriteAsync(ResponseContent);
                     });
                 })
-                .ConfigureServices(s => s.AddGraceterm(a => a.TimeoutSeconds = gracetermOptions.TimeoutSeconds));
+                .ConfigureServices(s => s.AddGraceterm(gracetermOptions));
 
             testServer = new TestServer(webHostBuilder);
         }
