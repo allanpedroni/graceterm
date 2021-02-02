@@ -13,12 +13,12 @@ namespace Graceterm
         public LifetimeGracetermService(
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime appLifetime,
-            IOptions<GracetermOptions> options)
+            GracetermOptions options)
         {
             logger = loggerFactory?.CreateLogger<LifetimeGracetermService>() ??
                 throw new ArgumentNullException(nameof(loggerFactory));
             this.appLifetime = appLifetime;
-            this.options = options?.Value ??
+            this.options = options ??
                 throw new ArgumentException(nameof(options));
 
             appLifetime.ApplicationStopping.Register(OnStopping);
@@ -62,7 +62,6 @@ namespace Graceterm
                     stopRequestedTime = ComputeIntegerTimeReference();
                 }
             }
-
             while (requestCount > 0 && !TimeoutOccurred());
 
             if (requestCount > 0 && TimeoutOccurred())

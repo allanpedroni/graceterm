@@ -1,29 +1,29 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Graceterm.Tests
 {
     public class Server
     {
         public const string ResponseContent = "hello";
-        private TestServer _testServer;
-        private IHostApplicationLifetime _applicationLifetime;
+        private TestServer testServer;
+        private IHostApplicationLifetime applicationLifetime;
 
         public Task<HttpResponseMessage> CreateRequest()
         {
             var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), "/");
 
             return Task.Factory.StartNew(() =>
-                    _testServer.CreateClient().GetAsync("/").Result,
+                    testServer.CreateClient().GetAsync("/").Result,
                 TaskCreationOptions.LongRunning);
         }
 
@@ -31,7 +31,7 @@ namespace Graceterm.Tests
         {
             var requestTasks = new List<Task<HttpResponseMessage>>();
 
-            for (int i = 0; i < num; i++)
+            for (var i = 0; i < num; i++)
             {
                 requestTasks.Add(CreateRequest());
             }
@@ -41,7 +41,7 @@ namespace Graceterm.Tests
 
         public void Stop()
         {
-            _applicationLifetime.StopApplication();
+            applicationLifetime.StopApplication();
         }
 
         public static Server Create(GracetermOptions gracetermOptions)
@@ -64,26 +64,16 @@ namespace Graceterm.Tests
                     loggingBuilder.AddDebug();
                     loggingBuilder.SetMinimumLevel(LogLevel.Trace);
                 })
-                .ConfigureServices(s =>
+                .Configure(app =>
                 {
-                    s.AddGraceterm();
-                })
-                .Configure(app => {
-                    _applicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
+                    applicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
 
-                    if(_applicationLifetime == null)
+                    if (applicationLifetime == null)
                     {
                         throw new InvalidOperationException("Could not get IApplicationLifetime service!");
                     }
 
-                    if (gracetermOptions == null)
-                    {
-                        app.UseGraceterm();
-                    }
-                    else
-                    {
-                        app.UseGraceterm(gracetermOptions);
-                    }
+                    app.UseGraceterm();
 
                     app.Run(async context =>
                     {
@@ -91,10 +81,10 @@ namespace Graceterm.Tests
                         await Task.Delay(new Random().Next(10000, 20000));
                         await context.Response.WriteAsync(ResponseContent);
                     });
-                }
-            );
+                })
+                .ConfigureServices(s => s.AddGraceterm(a => a.TimeoutSeconds = gracetermOptions.TimeoutSeconds));
 
-            _testServer = new TestServer(webHostBuilder);
+            testServer = new TestServer(webHostBuilder);
         }
     }
 }

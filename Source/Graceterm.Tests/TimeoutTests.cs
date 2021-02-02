@@ -1,6 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -16,24 +13,21 @@ namespace Graceterm.Tests
                 TimeoutSeconds = 5
             });
 
-            int requests = 10;
+            var requests = 10;
 
             var requestTasks = server.CreateRequests(requests);
 
             await Task.Delay(1000); // Ensure that requests will be all submitted
 
             // simulate sigterm
-            var stopTask = Task.Run(() =>
-            {
-                server.Stop();
-            });
+            var stopTask = Task.Run(() => server.Stop());
 
             await Task.Delay(8000);
 
             Assert.True(LifetimeGracetermService.TimeoutOccurredWithPenddingRequests);
-            Assert.True(LifetimeGracetermService.RequestCount >= 10, 
+            Assert.True(LifetimeGracetermService.RequestCount >= 10,
                 $"GracetermMiddleware.RequestCount < {requests}");
-            
+
             await stopTask;
         }
     }

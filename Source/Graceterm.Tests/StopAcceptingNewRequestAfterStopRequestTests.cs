@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -9,16 +9,13 @@ namespace Graceterm.Tests
         [Fact]
         public async Task ShouldReturnServiceUnavailableForResquestCreatedAfterStopRequest()
         {
-            var server = Server.Create();
+            var server = Server.Create(new GracetermOptions() { TimeoutSeconds = 5 });
             server.CreateRequests(1); // Create a request before ask to terminate in order to hold server up
 
             await Task.Delay(1000); // Ensure that requests will be all submitted
 
             // simulate sigterm
-            var stopTask = Task.Run(() =>
-            {
-                server.Stop();
-            });
+            var stopTask = Task.Run(() => server.Stop());
 
             await Task.Delay(100); // Give a break in order to stopTask start
             await Task.Delay(1500); // Wait to GracetermMiddleware._stopRequested assume true

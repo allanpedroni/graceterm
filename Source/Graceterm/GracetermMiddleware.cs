@@ -31,14 +31,14 @@ namespace Graceterm
         };
 
         public GracetermMiddleware(RequestDelegate next, ILifetimeGracetermService applicationLifetime,
-            ILoggerFactory loggerFactory, IOptions<GracetermOptions> options)
+            ILoggerFactory loggerFactory, GracetermOptions options)
         {
             this.next = next ?? throw new ArgumentNullException(nameof(next));
             this.applicationLifetime = applicationLifetime ??
                 throw new ArgumentNullException(nameof(applicationLifetime));
             logger = loggerFactory?.CreateLogger(LoggerCategory) ??
                 throw new ArgumentNullException(nameof(loggerFactory));
-            this.options = options?.Value ??
+            this.options = options ??
                 throw new ArgumentException(nameof(options));
 
             if (this.options.CustomPostSigtermRequestsHandler != null)
